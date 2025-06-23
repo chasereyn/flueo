@@ -1,14 +1,12 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
-import { SiteHeader } from "@/components/site-header"
+import { AppSidebar } from "@/app/app-sidebar"
+import { DataTable } from "@/app/dashboard/data-table"
+import { SectionCards } from "@/app/dashboard/section-cards"
+import { SiteHeader } from "@/app/site-header"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/server"
-import data from "./data.json"
-
 
 export default async function Page() {
 
@@ -18,6 +16,15 @@ export default async function Page() {
   if (!user) {
     // Optionally redirect or show a message
     return <div>Please log in.</div>;
+  }
+
+  const { data: cards, error } = await supabase
+    .from("cards")
+    .select("*")
+    .eq("user_id", user.id);
+
+  if (error) {
+    return <div>Error loading cards: {error.message}</div>;
   }
 
   return (
@@ -36,7 +43,7 @@ export default async function Page() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <SectionCards />
-              <DataTable data={data} />
+              <DataTable cards={cards} />
             </div>
           </div>
         </div>
