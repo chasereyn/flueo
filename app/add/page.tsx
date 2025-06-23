@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/client"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import {
   Collapsible,
   CollapsibleContent,
@@ -33,7 +32,6 @@ export default function AddPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [response, setResponse] = useState<TranslationResponse | null>(null)
   const [rawApiResponse, setRawApiResponse] = useState<string>("")
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
