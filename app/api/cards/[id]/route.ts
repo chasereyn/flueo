@@ -39,16 +39,17 @@ export async function PATCH(
 
 // DELETE - Delete card
 export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
+    const { id } = await params;
 
     const { error } = await supabase
       .from('cards')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
