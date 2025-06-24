@@ -51,12 +51,14 @@ export async function DELETE(
       .eq('id', params.id);
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
-  } catch (error: unknown) {
-    console.error('Error deleting card:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ message: 'Card deleted successfully' });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'An unexpected error occurred' },
+      { status: 500 }
+    );
   }
 } 
