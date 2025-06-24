@@ -90,7 +90,8 @@ export default function ReviewPage() {
         setCards(data.cards);
       }
       setLoading(false);
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Error fetching due cards:', error);
       toast.error("Failed to fetch cards");
       setLoading(false);
     }
@@ -125,7 +126,8 @@ export default function ReviewPage() {
         // Optionally fetch new cards or redirect
         setCards([]);
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Error submitting review:', error);
       toast.error("Failed to submit review");
     }
   }
@@ -149,7 +151,7 @@ export default function ReviewPage() {
           <CardContent>
             <h2 className="text-2xl font-bold mb-4">No Cards Due</h2>
             <p className="text-muted-foreground mb-6">
-              Great job! You've completed all your due cards.
+              Great job! You&apos;ve completed all your due cards.
               Come back later for more reviews.
             </p>
             <Button onClick={() => router.push('/dashboard')}>
@@ -200,14 +202,14 @@ export default function ReviewPage() {
         {/* Quality buttons with keyboard shortcuts */}
         <div className="flex flex-wrap gap-2 justify-center w-full max-w-lg">
           {isFlipped && [
-            { key: '1', quality: 0, label: "Forgot (1)", variant: "destructive" },
-            { key: '2', quality: 3, label: "Hard (2)", variant: "outline" },
-            { key: '3', quality: 4, label: "Good (3)", variant: "default" },
-            { key: '4', quality: 5, label: "Easy (4)", variant: "secondary" },
-          ].map(({ key, quality, label, variant }) => (
+            { quality: 0, label: "Forgot (1)", variant: "destructive" as const },
+            { quality: 3, label: "Hard (2)", variant: "outline" as const },
+            { quality: 4, label: "Good (3)", variant: "default" as const },
+            { quality: 5, label: "Easy (4)", variant: "secondary" as const },
+          ].map(({ quality, label, variant }) => (
             <Button
               key={quality}
-              variant={variant as any}
+              variant={variant}
               className="flex-1 min-w-[100px] cursor-pointer"
               onClick={() => handleQualityRating(quality)}
             >

@@ -23,7 +23,8 @@ export async function GET() {
 
     return NextResponse.json({ cards });
 
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Error fetching due cards:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

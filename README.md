@@ -54,6 +54,7 @@ DEPLOY
 - Ensure moderation / content length for AI
 - Deny prompt injecting
 - Supabase ensure no span sign up and good!
+- Fix 404 errors
 
 ENVIRONMENT / SETTINGS
 - Max Tokens

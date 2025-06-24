@@ -1,10 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { DataTable } from './data-table'
 
-export function DataTableWrapper({ initialCards }: { initialCards: any[] }) {
+interface Card {
+  id: string
+  english: string
+  spanish: string
+  quality: number
+  next_review: string | null
+}
+
+export function DataTableWrapper({ initialCards }: { initialCards: Card[] }) {
   const [cards, setCards] = useState(initialCards)
   const supabase = createClient()
 

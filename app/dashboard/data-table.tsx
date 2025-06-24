@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import {
   Table,
   TableBody,
@@ -31,7 +30,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 
@@ -98,7 +96,8 @@ export function DataTable({ cards, onCardUpdate }: DataTableProps) {
       toast.success('Card updated successfully')
       setSelectedCard(null)
       onCardUpdate() // Refresh the cards list
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Error updating card:', error);
       toast.error('Failed to update card')
     }
   }
@@ -117,7 +116,8 @@ export function DataTable({ cards, onCardUpdate }: DataTableProps) {
       setShowDeleteDialog(false)
       setSelectedCard(null)
       onCardUpdate() // Refresh the cards list
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Error deleting card:', error);
       toast.error('Failed to delete card')
     }
   }
@@ -163,7 +163,7 @@ export function DataTable({ cards, onCardUpdate }: DataTableProps) {
           <DialogHeader>
             <DialogTitle>Edit Card</DialogTitle>
             <DialogDescription>
-              Make changes to your flashcard. This will reset the card's learning progress.
+              Make changes to your flashcard. This will reset the card&apos;s learning progress.
             </DialogDescription>
           </DialogHeader>
 

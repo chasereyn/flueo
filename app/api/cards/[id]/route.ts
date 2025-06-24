@@ -31,7 +31,8 @@ export async function PATCH(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Error updating card:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -54,7 +55,8 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Error deleting card:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

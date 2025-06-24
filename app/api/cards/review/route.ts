@@ -93,7 +93,8 @@ export async function POST(request: Request) {
       ...sm2Result
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Error processing review:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 
