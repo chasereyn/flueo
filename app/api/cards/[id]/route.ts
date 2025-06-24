@@ -40,7 +40,7 @@ export async function PATCH(
 // DELETE - Delete card
 export async function DELETE(
   _request: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -48,7 +48,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('cards')
       .delete()
-      .eq('id', context.params.id);
+      .eq('id', params.id);
 
     if (error) {
       return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
