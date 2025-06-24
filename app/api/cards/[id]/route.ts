@@ -5,10 +5,11 @@ import { NextResponse } from 'next/server';
 // PATCH - Update card
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
+    const { id } = await params;
     const { english, spanish } = await request.json();
 
     // Update the card and reset its learning progress
@@ -24,16 +25,19 @@ export async function PATCH(
         interval_days: 0,
         next_review: new Date().toISOString(),
       })
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to update card' }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ message: 'Card updated successfully' });
   } catch (error: unknown) {
     console.error('Error updating card:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'An unexpected error occurred' },
+      { status: 500 }
+    );
   }
 }
 
