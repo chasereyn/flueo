@@ -12,6 +12,7 @@ SMALL
 - cursor pointer for everything
 - enlarge all buttons
 - change to 'add' in add page
+- All supabase queries need to be seen by only the current user!
 
 ORGANIZATION
 - Give description and notes and alternate translations and whatnot
