@@ -39,6 +39,7 @@ export async function PATCH(
 
 // DELETE - Delete card
 export async function DELETE(
+  _request: Request,
   context: { params: { id: string } }
 ) {
   try {
