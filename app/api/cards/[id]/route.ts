@@ -55,7 +55,8 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: 'Card deleted successfully' });
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Error deleting card:', error);
     return NextResponse.json(
       { error: 'An unexpected error occurred' },
       { status: 500 }
