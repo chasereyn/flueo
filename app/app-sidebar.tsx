@@ -33,7 +33,7 @@ const data = {
   navMain: [
     {
       title: "Review",
-      url: "#",
+      url: "/review",
       icon: IconDashboard,
     },
     {

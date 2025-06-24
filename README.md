@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+DOCUMENT / USE
+- Record current progress
+- Try it out
 
-## Getting Started
+BIG
+- AI Explanation during adding
+- Replace the cards with info / collect statistics (separate database?)
+- Take things and make components (split up big files so I know what is going on)
 
-First, run the development server:
+SMALL
+- main table make 4 green
+- cursor pointer for everything
+- enlarge all buttons
+- change to 'add' in add page
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+ORGANIZATION
+- Give description and notes and alternate translations and whatnot
+- Remove other supabase projects
+- Remove other vercel stuff
+- Rename supabase / vercel / github
+- Rename folders to how I like
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+SHARE WITH COMMUNITIES AT THIS POINT
+VIDEO
+- How I set this up...
+- Like Literally just record your progress, post on X, people will love this!
+--------------------------------------------
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+BIG
+- Get Toaster working in all instances
+- Statistics page, panel with information
+- Progress for each word / phrase
+- Daily Review Goal
+- Build out about, help, settings
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+DETAILS
+- Dark mode all screens
+- Hero make pretty
+- Login and forget password and auth make look good
+- Ensure copy is good (auth spaces)
+- Cursor pointer on hover ALL BUTTONS
+- Link to me, my github, my projects
+- Feedback link as well (go to another supabase)
+- redo icons in side bar
 
-## Learn More
+PRACTICE USING
+- ask AI
+- try to break prompt (check input and output)
 
-To learn more about Next.js, take a look at the following resources:
+DEPLOY
+- Create color, logo, branding
+- Favicon
+- ask Grok
+- Ensure moderation / content length for AI
+- Deny prompt injecting
+- Supabase ensure no span sign up and good!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ENVIRONMENT / SETTINGS
+- Max Tokens
+- Prompts (fix grammar)
+- num to review each session
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+EXPAND
+- Choose Language
+- Listen to Audio
+- Import Text
+- Capture Keywords and Keyphrases
+- Paid Tier?
+- Daily Joural (record yourself and such)
+- Talk to friends as well

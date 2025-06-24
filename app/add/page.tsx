@@ -16,6 +16,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { toast } from "sonner"
+import { Label } from "@/components/ui/label"
 
 interface TranslationPair {
   english: string
@@ -24,7 +26,6 @@ interface TranslationPair {
 
 interface TranslationResponse {
   translations: TranslationPair[]
-  count: number
 }
 
 export default function AddPage() {
@@ -32,10 +33,14 @@ export default function AddPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [response, setResponse] = useState<TranslationResponse | null>(null)
   const [rawApiResponse, setRawApiResponse] = useState<string>("")
+  const [savedCardIndices, setSavedCardIndices] = useState<Set<number>>(new Set())
+  const [editedTranslations, setEditedTranslations] = useState<{ [key: number]: TranslationPair }>({})
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setSavedCardIndices(new Set())
+    setEditedTranslations({})
     try {
       const result = await fetch("/api/translate", {
         method: "POST",
@@ -60,7 +65,55 @@ export default function AddPage() {
     }
   }
 
-  const handleSaveToSupabase = async (pair: TranslationPair) => {
+  const handleEdit = (index: number, field: keyof TranslationPair, value: string) => {
+    const original = response?.translations[index] || { english: "", spanish: "" }
+    const current = editedTranslations[index] || original
+    
+    setEditedTranslations(prev => ({
+      ...prev,
+      [index]: {
+        ...current,
+        [field]: value
+      }
+    }))
+  }
+
+  const handleSaveToSupabase = async (pair: TranslationPair, index: number) => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      console.error("No user logged in")
+      return
+    }
+
+    // Use edited version if it exists, otherwise use original
+    const finalPair = editedTranslations[index] || pair
+
+    try {
+      const { error } = await supabase.from("cards").insert({
+        user_id: user.id,
+        english: finalPair.english,
+        spanish: finalPair.spanish,
+        quality: 0,
+        repetition_count: 0,
+        easiness_factor: 2.5,
+        interval_days: 0,
+        last_review_date: new Date().toISOString(),
+        next_review: new Date().toISOString(),
+      })
+
+      if (error) throw error
+      
+      setSavedCardIndices(prev => new Set([...prev, index]))
+      toast.success("Card saved successfully!")
+    } catch (error) {
+      console.error("Error saving to Supabase:", error)
+      toast.error("Failed to save card")
+    }
+  }
+
+  const handleSaveAll = async () => {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
@@ -70,22 +123,35 @@ export default function AddPage() {
     }
 
     try {
-      const { error } = await supabase.from("cards").insert({
-        user_id: user.id,
-        english: pair.english,
-        spanish: pair.spanish,
-        proficiency: 0,
-      })
-
-      if (error) throw error
+      // Save all unsaved cards
+      for (let index = 0; index < unsavedTranslations.length; index++) {
+        const pair = editedTranslations[index] || unsavedTranslations[index]
+        const { error } = await supabase.from("cards").insert({
+          user_id: user.id,
+          english: pair.english,
+          spanish: pair.spanish,
+          quality: 0,
+          repetition_count: 0,
+          easiness_factor: 2.5,
+          interval_days: 0,
+          last_review_date: new Date().toISOString(),
+          next_review: new Date().toISOString(),
+        })
+        if (error) throw error
+      }
       
-      // Show some kind of success indication but don't navigate away
-      // so user can save other pairs if they want
-      alert("Card saved successfully!")
+      // Mark all cards as saved
+      setSavedCardIndices(new Set(unsavedTranslations.map((_, i) => i)))
+      toast.success("All cards saved successfully!")
     } catch (error) {
-      console.error("Error saving to Supabase:", error)
+      console.error("Error saving cards:", error)
+      toast.error("Failed to save all cards")
     }
   }
+
+  // Filter out saved cards from display
+  const unsavedTranslations = response?.translations.filter((_, index) => !savedCardIndices.has(index)) || []
+  const unsavedCount = unsavedTranslations.length
 
   return (
     <SidebarProvider
@@ -124,32 +190,66 @@ export default function AddPage() {
 
             {(response || rawApiResponse) && (
               <>
-                {response && (
+                {response && unsavedCount > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Generated Flashcards ({response.count})</CardTitle>
+                      <CardTitle>Generated Flashcards ({unsavedCount})</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-col gap-6">
-                      {response.translations.map((pair, index) => (
-                        <div key={index} className="border rounded-lg p-4">
-                          <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <h3 className="font-semibold mb-2">English</h3>
-                              <p className="text-lg">{pair.english}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold mb-2">Spanish</h3>
-                              <p className="text-lg">{pair.spanish}</p>
+                    <CardContent className="flex flex-col gap-2">
+                      <div className="grid grid-cols-[1fr_1fr_auto] gap-4 px-4">
+                        <Label className="font-medium">English</Label>
+                        <Label className="font-medium">Spanish</Label>
+                        <div className="w-[132px]" />
+                      </div>
+                      {unsavedTranslations.map((pair, index) => {
+                        const currentPair = editedTranslations[index] || pair
+                        return (
+                          <div key={index} className="px-4 py-1">
+                            <div className="grid grid-cols-[1fr_1fr_auto] gap-4 items-center">
+                              <Input
+                                id={`english-${index}`}
+                                value={currentPair.english}
+                                onChange={(e) => handleEdit(index, 'english', e.target.value)}
+                                className="text-base"
+                              />
+                              <Input
+                                id={`spanish-${index}`}
+                                value={currentPair.spanish}
+                                onChange={(e) => handleEdit(index, 'spanish', e.target.value)}
+                                className="text-base"
+                              />
+                              <div className="flex gap-2">
+                                <Button 
+                                  onClick={() => {
+                                    setSavedCardIndices(prev => new Set([...prev, index]))
+                                  }}
+                                  variant="outline"
+                                  className="h-9 w-9 rounded-lg p-0 flex items-center justify-center"
+                                >
+                                  <span className="sr-only">Delete</span>
+                                  ✕
+                                </Button>
+                                <Button 
+                                  onClick={() => handleSaveToSupabase(pair, index)}
+                                  className="px-6 h-9"
+                                  variant="default"
+                                >
+                                  Save
+                                </Button>
+                              </div>
                             </div>
                           </div>
-                          <Button 
-                            onClick={() => handleSaveToSupabase(pair)}
-                            className="w-full"
-                          >
-                            Save This Card
-                          </Button>
-                        </div>
-                      ))}
+                        )
+                      })}
+                      <div className="flex justify-end px-4 pt-2">
+                        <Button
+                          onClick={handleSaveAll}
+                          className="px-6 h-9"
+                          variant="default"
+                        >
+                          Add All ({unsavedCount})
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
