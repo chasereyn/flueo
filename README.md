@@ -2,6 +2,18 @@ DOCUMENT / USE
 - Record current progress
 - Try it out
 
+URGENT
+- Get the buttons to be hover
+
+NOTES
+- Randomize the order of the terms
+- Buttons on the bottom, make constant spacer card doesn't move
+- No cards to review (skip ahead anyways)
+- Ability to sort the table
+- Prompt: consider literal and idiomatic meanings, mexican dialect
+- AI Explainer what does XXX mean here (in review, edit, and add)
+- Typing special symbols for Spanish
+
 BIG
 - AI Explanation during adding
 - Replace the cards with info / collect statistics (separate database?)
@@ -13,6 +25,7 @@ SMALL
 - enlarge all buttons
 - change to 'add' in add page
 - All supabase queries need to be seen by only the current user!
+- Magic stars for AI stuff
 
 ORGANIZATION
 - Give description and notes and alternate translations and whatnot
@@ -25,6 +38,9 @@ SHARE WITH COMMUNITIES AT THIS POINT
 VIDEO
 - How I set this up...
 - Like Literally just record your progress, post on X, people will love this!
+- Share in reddit
+- Software, language learning, other youtubers and COMMUNITIES
+- Product Hunt put it on there and look there as well
 --------------------------------------------
 
 BIG
@@ -47,6 +63,7 @@ DETAILS
 PRACTICE USING
 - ask AI
 - try to break prompt (check input and output)
+- implement <thinking> tags
 
 DEPLOY
 - Create color, logo, branding
@@ -61,12 +78,25 @@ ENVIRONMENT / SETTINGS
 - Max Tokens
 - Prompts (fix grammar)
 - num to review each session
+- User dialect (for the AI)
 
 EXPAND
 - Choose Language
 - Listen to Audio
 - Import Text
 - Capture Keywords and Keyphrases
-- Paid Tier?
+- https://github.com/nextjs/saas-starter
 - Daily Joural (record yourself and such)
 - Talk to friends as well
+
+CURSOR
+- Supabase MCP
+
+FINALIZE
+- Enable RLS
+- Rate Limit Endpoints (supabase edge function with rate limiter)
+- Vercel settings, security, WAF
+- CAPTCHA
+- Monitoring and logs
+- bun audit
+- Validate inputs on backend

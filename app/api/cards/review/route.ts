@@ -1,5 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 interface ReviewRequest {
@@ -44,7 +43,7 @@ function calculateSM2(quality: number, repetitions: number, previousInterval: nu
 
 export async function POST(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
     const body: ReviewRequest = await request.json();
     
     // Get the current card data
@@ -82,6 +81,7 @@ export async function POST(request: Request) {
         next_review: nextReview.toISOString()
       })
       .eq('id', body.cardId);
+      
 
     if (updateError) {
       return NextResponse.json({ error: 'Failed to update card' }, { status: 500 });

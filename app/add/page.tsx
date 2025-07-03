@@ -41,6 +41,9 @@ export default function AddPage() {
     setIsLoading(true)
     setSavedCardIndices(new Set())
     setEditedTranslations({})
+    setResponse(null)
+    setRawApiResponse("")
+    
     try {
       const result = await fetch("/api/translate", {
         method: "POST",
@@ -49,17 +52,36 @@ export default function AddPage() {
         },
         body: JSON.stringify({ phrase }),
       })
+      
       const data = await result.json()
+      
+      if (!result.ok) {
+        throw new Error(data.error || 'Failed to translate')
+      }
+      
       if (data.error) {
         throw new Error(data.error)
       }
+
       // Store the raw response
       setRawApiResponse(JSON.stringify(data, null, 2))
-      // Parse the JSON string from the translation field
-      const parsedResponse = JSON.parse(data.translation) as TranslationResponse
-      setResponse(parsedResponse)
-    } catch (error) {
+      
+      try {
+        // Parse the JSON string from the translation field
+        const parsedResponse = JSON.parse(data.translation) as TranslationResponse
+        if (!parsedResponse.translations || !Array.isArray(parsedResponse.translations)) {
+          throw new Error('Invalid translation format')
+        }
+        setResponse(parsedResponse)
+      } catch (parseError) {
+        console.error('Error parsing translation:', parseError)
+        toast.error('Failed to parse translation response')
+        throw new Error('Invalid translation format')
+      }
+    } catch (error: any) {
       console.error("Error:", error)
+      toast.error(error.message || 'Failed to generate translations')
+      setResponse(null)
     } finally {
       setIsLoading(false)
     }
@@ -80,10 +102,11 @@ export default function AddPage() {
 
   const handleSaveToSupabase = async (pair: TranslationPair, index: number) => {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (!user) {
+    if (authError || !user) {
       console.error("No user logged in")
+      toast.error("Please log in to save cards")
       return
     }
 
@@ -91,19 +114,26 @@ export default function AddPage() {
     const finalPair = editedTranslations[index] || pair
 
     try {
-      const { error } = await supabase.from("cards").insert({
-        user_id: user.id,
-        english: finalPair.english,
-        spanish: finalPair.spanish,
-        quality: 0,
-        repetition_count: 0,
-        easiness_factor: 2.5,
-        interval_days: 0,
-        last_review_date: new Date().toISOString(),
-        next_review: new Date().toISOString(),
-      })
+      const { error } = await supabase
+        .from("cards")
+        .insert({
+          user_id: user.id,
+          english: finalPair.english,
+          spanish: finalPair.spanish,
+          quality: 0,
+          repetition_count: 0,
+          easiness_factor: 2.5,
+          interval_days: 0,
+          last_review_date: new Date().toISOString(),
+          next_review: new Date().toISOString(),
+        })
+        .select()
+        .single()
 
-      if (error) throw error
+      if (error) {
+        console.error("Supabase error:", error)
+        throw error
+      }
       
       setSavedCardIndices(prev => new Set([...prev, index]))
       toast.success("Card saved successfully!")
@@ -115,10 +145,11 @@ export default function AddPage() {
 
   const handleSaveAll = async () => {
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     
-    if (!user) {
+    if (authError || !user) {
       console.error("No user logged in")
+      toast.error("Please log in to save cards")
       return
     }
 
@@ -126,18 +157,26 @@ export default function AddPage() {
       // Save all unsaved cards
       for (let index = 0; index < unsavedTranslations.length; index++) {
         const pair = editedTranslations[index] || unsavedTranslations[index]
-        const { error } = await supabase.from("cards").insert({
-          user_id: user.id,
-          english: pair.english,
-          spanish: pair.spanish,
-          quality: 0,
-          repetition_count: 0,
-          easiness_factor: 2.5,
-          interval_days: 0,
-          last_review_date: new Date().toISOString(),
-          next_review: new Date().toISOString(),
-        })
-        if (error) throw error
+        const { error } = await supabase
+          .from("cards")
+          .insert({
+            user_id: user.id,
+            english: pair.english,
+            spanish: pair.spanish,
+            quality: 0,
+            repetition_count: 0,
+            easiness_factor: 2.5,
+            interval_days: 0,
+            last_review_date: new Date().toISOString(),
+            next_review: new Date().toISOString(),
+          })
+          .select()
+          .single()
+
+        if (error) {
+          console.error("Supabase error:", error)
+          throw error
+        }
       }
       
       // Mark all cards as saved

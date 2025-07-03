@@ -84,11 +84,25 @@ export default function ReviewPage() {
 
   async function fetchDueCards() {
     try {
-      const response = await fetch('/api/cards/due');
-      const data = await response.json();
-      if (data.cards) {
-        setCards(data.cards);
+      const response = await fetch('/api/cards/due', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'  // Important for sending cookies
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Please log in to view your cards");
+          router.push('/auth/login');
+          return;
+        }
+        throw new Error('Failed to fetch cards');
       }
+
+      const data = await response.json();
+      setCards(data.cards || []);
       setLoading(false);
     } catch (error: unknown) {
       console.error('Error fetching due cards:', error);
