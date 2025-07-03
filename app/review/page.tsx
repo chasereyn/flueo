@@ -39,79 +39,7 @@ export default function ReviewPage() {
   const [loading, setLoading] = useState(true);
   const [showExitDialog, setShowExitDialog] = useState(false);
 
-  useEffect(() => {
-    fetchDueCards();
-  }, []);
-
-  // Handle keyboard shortcuts
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    // Only handle shortcuts if there are cards
-    if (!cards.length) return;
-
-    // Escape or Enter to show exit dialog
-    if (event.code === 'Escape') {
-      event.preventDefault();
-      setShowExitDialog(true);
-      return;
-    }
-
-    // Space bar to flip card
-    if (event.code === 'Space') {
-      event.preventDefault(); // Prevent page scroll
-      setIsFlipped(prev => !prev);
-      return;
-    }
-
-    // Only handle number keys if card is flipped
-    if (!isFlipped) return;
-
-    const key = event.key;
-    if (key in QUALITY_MAPPINGS) {
-      const { quality } = QUALITY_MAPPINGS[key as keyof typeof QUALITY_MAPPINGS];
-      handleQualityRating(quality);
-    }
-  }, [cards.length, isFlipped]);
-
-  useEffect(() => {
-    // Add keyboard event listener
-    window.addEventListener('keydown', handleKeyPress);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [handleKeyPress]);
-
-  async function fetchDueCards() {
-    try {
-      const response = await fetch('/api/cards/due', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'  // Important for sending cookies
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          toast.error("Please log in to view your cards");
-          router.push('/auth/login');
-          return;
-        }
-        throw new Error('Failed to fetch cards');
-      }
-
-      const data = await response.json();
-      setCards(data.cards || []);
-      setLoading(false);
-    } catch (error: unknown) {
-      console.error('Error fetching due cards:', error);
-      toast.error("Failed to fetch cards");
-      setLoading(false);
-    }
-  }
-
-  async function handleQualityRating(quality: number) {
+  const handleQualityRating = useCallback(async (quality: number) => {
     if (!cards.length) return;
     
     const currentCard = cards[currentCardIndex];
@@ -144,7 +72,79 @@ export default function ReviewPage() {
       console.error('Error submitting review:', error);
       toast.error("Failed to submit review");
     }
-  }
+  }, [cards, currentCardIndex]);
+
+  // Handle keyboard shortcuts
+  const handleKeyPress = useCallback((event: KeyboardEvent) => {
+    // Only handle shortcuts if there are cards
+    if (!cards.length) return;
+
+    // Escape or Enter to show exit dialog
+    if (event.code === 'Escape') {
+      event.preventDefault();
+      setShowExitDialog(true);
+      return;
+    }
+
+    // Space bar to flip card
+    if (event.code === 'Space') {
+      event.preventDefault(); // Prevent page scroll
+      setIsFlipped(prev => !prev);
+      return;
+    }
+
+    // Only handle number keys if card is flipped
+    if (!isFlipped) return;
+
+    const key = event.key;
+    if (key in QUALITY_MAPPINGS) {
+      const { quality } = QUALITY_MAPPINGS[key as keyof typeof QUALITY_MAPPINGS];
+      handleQualityRating(quality);
+    }
+  }, [cards.length, isFlipped, handleQualityRating]);
+
+  const fetchDueCards = useCallback(async () => {
+    try {
+      const response = await fetch('/api/cards/due', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'  // Important for sending cookies
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Please log in to view your cards");
+          router.push('/auth/login');
+          return;
+        }
+        throw new Error('Failed to fetch cards');
+      }
+
+      const data = await response.json();
+      setCards(data.cards || []);
+      setLoading(false);
+    } catch (error: unknown) {
+      console.error('Error fetching due cards:', error);
+      toast.error("Failed to fetch cards");
+      setLoading(false);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    fetchDueCards();
+  }, [fetchDueCards]);
+
+  useEffect(() => {
+    // Add keyboard event listener
+    window.addEventListener('keydown', handleKeyPress);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   const handleExit = () => {
     router.push('/dashboard');

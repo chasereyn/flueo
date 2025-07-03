@@ -4,6 +4,8 @@ DOCUMENT / USE
 
 URGENT
 - Get the buttons to be hover
+- components PLEASE
+- remove browser errors
 
 NOTES
 - Randomize the order of the terms

@@ -78,9 +78,9 @@ export default function AddPage() {
         toast.error('Failed to parse translation response')
         throw new Error('Invalid translation format')
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error:", error)
-      toast.error(error.message || 'Failed to generate translations')
+      toast.error((error as Error).message || 'Failed to generate translations')
       setResponse(null)
     } finally {
       setIsLoading(false)
